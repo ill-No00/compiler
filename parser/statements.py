@@ -61,4 +61,10 @@ class Print(Stmt):
         return visitor.visitPrint(self)
 
 class Var(Stmt):
-    pass
+    
+    def __init__(self , name , initializer):
+        self.name = name
+        self.initializer = initializer
+    
+    def accept(self , visitor):
+        return visitor.visitVar(self)

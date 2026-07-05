@@ -13,6 +13,7 @@ from parser.statements import Stmt_Visitor
 from errors.runtimeError import RuntimeError
 from lexer.token_t import Token
 from lexer.token_type import TokenType
+from parser.environment import Evironment
 
 
 
@@ -20,6 +21,11 @@ from lexer.token_type import TokenType
 
 
 class Interpreter(Expr_Visitor, Stmt_Visitor):
+    
+    def __init__(self):
+        self.environment = Evironment()
+        hadRuntimeError = False
+        
     
     def interpret(self,statements):
         try:
@@ -33,6 +39,17 @@ class Interpreter(Expr_Visitor, Stmt_Visitor):
 
     def execute(self,stmt):
         stmt.accept(self)
+        
+    def visitVar(self,stmt):
+        value = None
+        if stmt.initializer != None:
+            value = self.evaluate(stmt.initializer)
+        
+        self.environment.add(stmt.name,value)
+        return None
+    
+    def visitVariableExpr(self,expr):
+        return self.environment.get(expr.name)
     
     def visitExpression(self,stmt):
         value = self.evaluate(stmt.expression)

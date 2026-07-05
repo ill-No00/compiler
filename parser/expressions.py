@@ -127,5 +127,12 @@ class Variable(Exp):
     def __init__(self,cont):
         self.content = cont
 
-        
+
+class Assign(Exp):
+    def __init__(self,name,value):
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitAssign(self)
 
