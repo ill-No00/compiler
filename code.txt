@@ -1,0 +1,19 @@
+khali a = "global a";
+khali b = "global b";
+khali c = "global c";
+{
+  khali a = "outer a";
+  khali b = "outer b";
+  {
+    khali a = "inner a";
+    akteb a;
+    akteb b;
+    akteb c;
+  }
+  akteb a;
+  akteb b;
+  akteb c;
+}
+akteb a;
+akteb b;
+akteb c;

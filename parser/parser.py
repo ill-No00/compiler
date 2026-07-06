@@ -9,7 +9,8 @@ sys.path.append(
 
 from lexer.token_type import TokenType
 from .expressions import *
-from .statements import Stmt , Print , Expression , Var
+from .statements import Block, Stmt , Print , Expression , Var
+from .expressions import *
 
 
 class ParseError(Exception):
@@ -36,7 +37,7 @@ class Parser:
         try:
             if self.match(TokenType.VAR) :
                 return self.varDeclaration()
-            return self.statement
+            return self.statement() 
         except Exception as e:
             self.synchronize()
             return None
@@ -57,8 +58,28 @@ class Parser:
     def statement(self):
         if self.match(TokenType.PRINT):
             return self.print_statement()
+        if self.match(TokenType.LEFT_BRACE):
+            return Block(self.block())
         
         return self.expression_statement()
+    
+    def block(self):
+        statements = []
+        
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            statements.append(self.declaration())
+        
+        self.consume(TokenType.RIGHT_BRACE , "Expect '}' after block.")
+        return statements
+    
+    def declaration(self):
+        try:
+            if self.match(TokenType.VAR):
+                return self.varDeclaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+            return None
     
     def print_statement(self): 
         value = self.expression()
@@ -80,7 +101,7 @@ class Parser:
             equals = self.previous()
             value = self.assignment()
 
-            if isinstance(expr, Var):
+            if isinstance(expr, Variable):
                 name = expr.name
                 return Assign(name, value)
 

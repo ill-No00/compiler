@@ -27,7 +27,7 @@ keywords = {
     "waled": TokenType.SUPER,
     "ana": TokenType.THIS,
     "s7i7": TokenType.TRUE,
-    "metghayer": TokenType.VAR,
+    "khali": TokenType.VAR,
     "madam": TokenType.WHILE,
 }
 

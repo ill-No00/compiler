@@ -7,4 +7,5 @@ class RuntimeError(Exception):
         self.token = token
 
     def __str__(self):
+        print(f"Token: {self.token}")
         return f"Runtime Error: {self.message} at line {self.token.line}"

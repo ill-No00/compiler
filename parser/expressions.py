@@ -124,8 +124,12 @@ class Grouping(Exp):
         return visitor.visitGrouping(self)
     
 class Variable(Exp):
+    
     def __init__(self,cont):
         self.content = cont
+        
+    def accept(self, visitor):
+        return visitor.visitVariableExpr(self)
 
 
 class Assign(Exp):
