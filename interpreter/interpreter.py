@@ -24,7 +24,7 @@ class Interpreter(Expr_Visitor, Stmt_Visitor):
     
     def __init__(self):
         self.environment = Evironment()
-        hadRuntimeError = False
+        self.hadRuntimeError = False
         
     
     def interpret(self,statements):
@@ -38,6 +38,7 @@ class Interpreter(Expr_Visitor, Stmt_Visitor):
             self.hadRuntimeError = True
 
     def execute(self,stmt):
+        print(f"Executing statement: {stmt}")
         stmt.accept(self)
     
     def visitBlock(self,stmt):
@@ -50,17 +51,20 @@ class Interpreter(Expr_Visitor, Stmt_Visitor):
             self.environment = environment
             
             for statement in statements:
-                print(f"statement : {statement}")
+                
                 self.execute(statement)
         finally:
             self.environment = previous
     
-    def visitAssignExp(self , expr):
+    def visitAssign(self , expr):
+       
+        
         value = self.evaluate(expr.value)
         self.environment.assign(expr.name,value)
         return value
         
     def visitVar(self,stmt):
+        
         value = None
         if stmt.initializer != None:
             value = self.evaluate(stmt.initializer)
@@ -69,15 +73,16 @@ class Interpreter(Expr_Visitor, Stmt_Visitor):
         return None
     
     def visitVariableExpr(self,expr):
+        
         return self.environment.get(expr.content)
     
     def visitExpression(self,stmt):
         value = self.evaluate(stmt.expression)
         return None
     
-    def visitPrint(self , stmt):
+    def visit(self , stmt):
         value = self.evaluate(stmt.expression)
-        print(self.stringify(value))
+        
         return None
     
     def evaluate(self,expr):
@@ -105,6 +110,17 @@ class Interpreter(Expr_Visitor, Stmt_Visitor):
             return
         raise RuntimeError("Operand must be a string.", operand.token)
     
+    def visitPrint(self, stmt):
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+        return None
+    
+    def visitIfStmt(self,stmt):
+        if self.isTruthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.thenBranch)
+        elif stmt.elseBranch is not None:
+            self.execute(stmt.elseBranch)
+        return None
 
     def visitLiteral(self,exp):
         return exp.value

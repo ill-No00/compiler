@@ -9,7 +9,7 @@ sys.path.append(
 
 from lexer.token_type import TokenType
 from .expressions import *
-from .statements import Block, Stmt , Print , Expression , Var
+from .statements import *
 from .expressions import *
 
 
@@ -58,9 +58,11 @@ class Parser:
     def statement(self):
         if self.match(TokenType.PRINT):
             return self.print_statement()
-        if self.match(TokenType.LEFT_BRACE):
+        elif self.match(TokenType.LEFT_BRACE):
             return Block(self.block())
-        
+        elif self.match(TokenType.IF):
+            return self.ifStatement()
+
         return self.expression_statement()
     
     def block(self):
@@ -71,6 +73,19 @@ class Parser:
         
         self.consume(TokenType.RIGHT_BRACE , "Expect '}' after block.")
         return statements
+    
+    def ifStatement(self):
+        self.consume(TokenType.LEFT_PAREN , "Expect '(' after 'if'.")
+        condition = self.expression()
+        self.consume(TokenType.RIGHT_PAREN , "Expect ')' after if condition.")
+        
+        thenBranch = self.statement()
+        elseBranch = None
+        
+        if self.match(TokenType.ELSE):
+            elseBranch = self.statement()
+        
+        return IfStmt(condition,thenBranch,elseBranch)
     
     def declaration(self):
         try:

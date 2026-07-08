@@ -17,7 +17,7 @@ class Evironment():
         self.enclosing = enclosing
     
     def add(self,name,value):
-        self.values[name] = value
+        self.values[name.lexeme] = value
     
     def get(self,name):
         
@@ -27,7 +27,7 @@ class Evironment():
         if self.enclosing is not None:
             return self.enclosing.get(name)
         
-        raise RuntimeError(f"Undefined variable {name.lexeme} .", name )
+        raise RuntimeError(f"Undefined variable gg {name.lexeme} .", name )
     
     def assign(self,name,value):
         if name.lexeme in self.values:
@@ -38,4 +38,4 @@ class Evironment():
             self.enclosing.assign(name,value)
             return
         
-        raise RuntimeError(f"Undefined variable {name.lexeme} .", name )
+        raise RuntimeError(f"Undefined variable gg {name.lexeme} .", name )

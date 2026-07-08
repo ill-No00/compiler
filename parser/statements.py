@@ -76,3 +76,13 @@ class Block(Stmt):
     
     def accept(self , visitor):
         return visitor.visitBlock(self)
+
+class IfStmt(Stmt):
+    
+    def __init__(self , condition , thenBranch , elseBranch):
+        self.condition = condition
+        self.thenBranch = thenBranch
+        self.elseBranch = elseBranch
+    
+    def accept(self , visitor):
+        return visitor.visitIfStmt(self)
