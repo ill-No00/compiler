@@ -38,7 +38,7 @@ def test_simple_function():
 
 def test_recursion():
     print("Running test_recursion...")
-    # Fibonacci recursion
+    
     code = """
     khedma fib(n) {
         yla (n <= 1) {
