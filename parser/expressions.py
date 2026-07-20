@@ -7,125 +7,168 @@ sys.path.append(
     )
 )
 
-
-from abc import ABC , abstractmethod
+from abc import ABC, abstractmethod
 from lexer.token_t import Token
-from lexer.token_type import TokenType
-from errors.runtimeError import RuntimeError
-
 
 class Expr_Visitor(ABC):
     
     @abstractmethod
-    def visitLiteral(self):
+    def visitLiteral(self, expr):
         pass
     
     @abstractmethod
-    def visitBinary(self):
+    def visitBinary(self, expr):
         pass
         
     @abstractmethod
-    def visitUnary(self):
+    def visitCall(self, expr):
         pass
         
     @abstractmethod
-    def visitGrouping(self):
+    def visitUnary(self, expr):
         pass
         
+    @abstractmethod
+    def visitGrouping(self, expr):
+        pass
 
-    
-        
-    
+    @abstractmethod
+    def visitVariableExpr(self, expr):
+        pass
+
+    @abstractmethod
+    def visitAssign(self, expr):
+        pass
+
+    @abstractmethod
+    def visitLogical(self, expr):
+        pass
+
+    @abstractmethod
+    def visitGet(self, expr):
+        pass
+
+    @abstractmethod
+    def visitSet(self, expr):
+        pass
+
+    @abstractmethod
+    def visitThis(self, expr):
+        pass
+
+    @abstractmethod
+    def visitSuper(self, expr):
+        pass
+
 
 class Exp(ABC):
     
     @abstractmethod
-    def accept(self , visitor):
+    def accept(self, visitor):
         pass
-    
+
+
 class AstPrinter(Expr_Visitor):
     
-    def parenthesize(self , name ,*exps ):
-        
+    def parenthesize(self, name, *exps):
         builder = f"({name}"
-    
-        for exp in exps : 
-            print(f"exp :{exp}")
-            builder+= " "
+        for exp in exps: 
+            builder += " "
             added = exp.accept(self)
-            if added != None : 
-                builder+= added
-            
-            
+            if added is not None: 
+                builder += added
         builder += ")"
-        
         return builder
     
-    def print(self,exp):
+    def print(self, exp):
         return exp.accept(self)
     
-    def visitLiteral(self,exp):
-        
-        if exp.value == None : 
+    def visitLiteral(self, exp):
+        if exp.value is None: 
             return 'nil'
-        else:
-            return str(exp.value)
+        return str(exp.value)
 
-    def visitUnary(self,exp):
-        
-        return self.parenthesize(exp.operator.lexeme , exp.right)
+    def visitUnary(self, exp):
+        return self.parenthesize(exp.operator.lexeme, exp.right)
     
-    def visitBinary(self,exp):
-        return self.parenthesize(exp.operator.lexeme ,exp.left, exp.right)
+    def visitBinary(self, exp):
+        return self.parenthesize(exp.operator.lexeme, exp.left, exp.right)
     
-    def visitGrouping(self,exp):
-        
-        return self.parenthesize("group" , exp.expression)
+    def visitGrouping(self, exp):
+        return self.parenthesize("group", exp.expression)
+
+    def visitVariableExpr(self, exp):
+        return exp.content.lexeme
+
+    def visitAssign(self, exp):
+        return self.parenthesize(f"= {exp.name.lexeme}", exp.value)
+
+    def visitLogical(self, exp):
+        return self.parenthesize(exp.operator.lexeme, exp.left, exp.right)
+
+    def visitCall(self, exp):
+        return self.parenthesize("call", exp.callee, *exp.args)
+
+    def visitGet(self, exp):
+        return self.parenthesize(f". {exp.name.lexeme}", exp.object)
+
+    def visitSet(self, exp):
+        return self.parenthesize(f"= . {exp.name.lexeme}", exp.object, exp.value)
+
+    def visitThis(self, exp):
+        return "this"
+
+    def visitSuper(self, exp):
+        return f"super.{exp.method.lexeme}"
+
 
 class Literal(Exp):
-    
-    def __init__(self,value):
+    def __init__(self, value):
         self.value = value
     
     def accept(self, visitor):
         return visitor.visitLiteral(self)
-    
 
 
 class Binary(Exp): 
-    
-    def __init__(self,left,operator,right):
+    def __init__(self, left, operator, right):
         self.left = left
         self.operator = operator
         self.right = right
         
     def accept(self, visitor):
         return visitor.visitBinary(self)
-    
-    
-    
+
+
 class Unary(Exp):
-    
-    def __init__(self,operator,right):
+    def __init__(self, operator, right):
         self.operator = operator
         self.right = right
         
     def accept(self, visitor):
         return visitor.visitUnary(self)
-    
-    
-    
+
+
+class Call(Exp):
+    def __init__(self, callee, paren, args):
+        self.callee = callee
+        self.paren = paren
+        self.args = args
+        
+    def accept(self, visitor):
+        return visitor.visitCall(self)
+
+
 class Grouping(Exp): 
-    
-    def __init__(self,exp):
+    def __init__(self, exp):
         self.expression = exp
     
     def accept(self, visitor):
         return visitor.visitGrouping(self)
-    
+
+
 class Variable(Exp):
-    
-    def __init__(self,cont):
+    def __init__(self, cont):
         self.content = cont
         
     def accept(self, visitor):
@@ -133,10 +176,55 @@ class Variable(Exp):
 
 
 class Assign(Exp):
-    def __init__(self,name,value):
+    def __init__(self, name, value):
         self.name = name
         self.value = value
 
     def accept(self, visitor):
         return visitor.visitAssign(self)
 
+
+class Logical(Exp):
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+        
+    def accept(self, visitor):
+        return visitor.visitLogical(self)
+
+
+class Get(Exp):
+    def __init__(self, obj, name):
+        self.object = obj
+        self.name = name
+
+    def accept(self, visitor):
+        return visitor.visitGet(self)
+
+
+class Set(Exp):
+    def __init__(self, obj, name, value):
+        self.object = obj
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitSet(self)
+
+
+class This(Exp):
+    def __init__(self, keyword):
+        self.keyword = keyword
+
+    def accept(self, visitor):
+        return visitor.visitThis(self)
+
+
+class Super(Exp):
+    def __init__(self, keyword, method):
+        self.keyword = keyword
+        self.method = method
+
+    def accept(self, visitor):
+        return visitor.visitSuper(self)

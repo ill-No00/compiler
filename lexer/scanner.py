@@ -13,7 +13,7 @@ from parser.parser import Parser
 from parser.expressions import AstPrinter
 
 keywords = {
-    "and": TokenType.AND,
+    "w": TokenType.AND,
     "class": TokenType.CLASS,
     "wela": TokenType.ELSE,
     "ghalet": TokenType.FALSE,
@@ -21,7 +21,7 @@ keywords = {
     "khedma": TokenType.FUN,
     "yla": TokenType.IF,
     "walou": TokenType.NIL,
-    "or": TokenType.OR,
+    "awla": TokenType.OR,
     "akteb": TokenType.PRINT,
     "rod": TokenType.RETURN,
     "waled": TokenType.SUPER,

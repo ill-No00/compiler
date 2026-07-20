@@ -1,5 +1,10 @@
-yla (s7i7){
-  akteb("rah s7i7");
-}wela{
-  akteb("GG");
+
+
+khali a = 0;
+khali temp;
+
+dor (khali b = 1; b < 10; b = 1 + b) {
+  akteb(b);
+  
 }
+  
